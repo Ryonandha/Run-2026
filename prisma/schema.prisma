@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+  CANCELED
+}
+
+model User {
+  id           String         @id @default(cuid())
+  nama         String
+  email        String         @unique
+  password     String
+  isVerified   Boolean        @default(false)
+  transactions Transaction[]
+}
+
+model Ticket {
+  id           String         @id @default(cuid())
+  nama         String
+  deskripsi    String
+  harga        Int
+  kuota        Int
+  transactions Transaction[]
+}
+
+model Transaction {
+  id         String        @id @default(cuid())
+  userId     String
+  ticketId   String
+  status     PaymentStatus @default(PENDING)
+  paymentUrl String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([ticketId])
+}

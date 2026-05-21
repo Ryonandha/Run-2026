@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // Menggunakan komponen input dari Shadcn
+import RegisterForm from "./RegisterForm";
 
 export default function RegisterPage() {
   return (
@@ -25,52 +24,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Form Dummy (Belum ada fungsi database, murni UI) */}
-        <form className="space-y-5" action="/verify">
-          <div>
-            <label className="block text-sm font-medium text-[#004F6E] mb-1.5">
-              Nama Lengkap
-            </label>
-            <Input 
-              type="text" 
-              placeholder="Masukkan nama lengkap" 
-              required 
-              className="w-full rounded-xl"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#004F6E] mb-1.5">
-              Alamat Email
-            </label>
-            <Input 
-              type="email" 
-              placeholder="nama@email.com" 
-              required 
-              className="w-full rounded-xl"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#004F6E] mb-1.5">
-              Password
-            </label>
-            <Input 
-              type="password" 
-              placeholder="Buat password yang kuat" 
-              required 
-              className="w-full rounded-xl"
-            />
-          </div>
-
-          {/* Tombol Register akan langsung mengarah ke halaman Dashboard (sementara) */}
-          <Button 
-            type="submit" 
-            className="w-full bg-[#00D27F] hover:bg-[#00b36c] text-white rounded-xl py-6 text-md font-semibold mt-4 shadow-md"
-          >
-            Daftar Sekarang
-          </Button>
-        </form>
+        <RegisterForm />
 
         <div className="mt-8 text-center text-sm text-gray-600">
           Sudah punya akun?{" "}

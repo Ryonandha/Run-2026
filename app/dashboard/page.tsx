@@ -1,14 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { prisma } from "@/lib/prisma";
 
-export default function DashboardPage() {
-  // Data dummy kategori tiket (bisa disesuaikan dengan harga aslinya nanti)
-  const ticketCategories = [
-    { id: 1, name: "Eco-Run (Individu)", price: "Rp 150.000", desc: "Termasuk Jersey Eco-friendly, Medali, dan Nomor Dada (Bib)." },
-    { id: 2, name: "Festival Musik", price: "Rp 75.000", desc: "Akses masuk area festival musik sehari penuh." },
-    { id: 3, name: "Indoor Hockey (Per Tim)", price: "Rp 500.000", desc: "Registrasi turnamen untuk 1 tim (5-7 orang)." },
-  ];
+export const dynamic = "force-dynamic";
+
+const currencyFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  maximumFractionDigits: 0,
+});
+
+export default async function DashboardPage() {
+  const tickets = await prisma.ticket.findMany({
+    orderBy: {
+      nama: "asc",
+    },
+  });
 
   return (
     <main className="min-h-screen bg-[#f8fdfa]">
@@ -47,28 +55,50 @@ export default function DashboardPage() {
 
         {/* Grid Pilihan Tiket */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {ticketCategories.map((ticket) => (
+          {tickets.length > 0 ? tickets.map((ticket) => {
+            const isSoldOut = ticket.kuota <= 0;
+
+            return (
             <div 
               key={ticket.id} 
               className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow"
             >
               <div>
-                <h3 className="text-xl font-bold text-[#004F6E] mb-2">{ticket.name}</h3>
-                <p className="text-sm text-gray-500 mb-6 min-h-[40px]">{ticket.desc}</p>
-                <div className="text-3xl font-black text-[#00D27F] mb-6">{ticket.price}</div>
+                <h3 className="text-xl font-bold text-[#004F6E] mb-2">{ticket.nama}</h3>
+                <p className="text-sm text-gray-500 mb-6 min-h-[40px]">{ticket.deskripsi}</p>
+                <div className="text-3xl font-black text-[#00D27F] mb-2">
+                  {currencyFormatter.format(ticket.harga)}
+                </div>
+                <p className="mb-6 text-sm font-medium text-gray-500">
+                  Sisa kuota: {ticket.kuota}
+                </p>
               </div>
               
-              {/* Form yang mengarah ke halaman pembayaran (dummy) */}
-              <form action="/payment">
-                <Button 
-                  type="submit" 
-                  className="w-full bg-[#004F6E] hover:bg-[#00384f] text-white rounded-xl py-6 text-md font-semibold"
+              {isSoldOut ? (
+                <Button
+                  type="button"
+                  disabled
+                  className="w-full rounded-xl bg-gray-300 py-6 text-md font-semibold text-white"
                 >
-                  Pilih Tiket Ini
+                  Sold Out
                 </Button>
-              </form>
+              ) : (
+                <form action="/payment">
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-[#004F6E] hover:bg-[#00384f] text-white rounded-xl py-6 text-md font-semibold"
+                  >
+                    Pilih Tiket Ini
+                  </Button>
+                </form>
+              )}
             </div>
-          ))}
+            );
+          }) : (
+            <div className="col-span-full rounded-3xl border border-dashed border-gray-200 bg-white p-10 text-center text-gray-500">
+              Belum ada tiket yang tersedia.
+            </div>
+          )}
         </div>
         
       </div>
