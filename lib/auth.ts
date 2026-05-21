@@ -4,6 +4,24 @@ import bcrypt from "bcrypt";
 
 import { prisma } from "@/lib/prisma";
 
+import { DefaultSession } from "next-auth";
+
+// Memberitahu TypeScript bahwa objek user di dalam Session memiliki tambahan properti 'id'
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+    } & DefaultSession["user"];
+  }
+}
+
+// (Opsional) Memperluas tipe JWT agar tidak error saat memanggil token.id
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -62,4 +80,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+
+  
 };
