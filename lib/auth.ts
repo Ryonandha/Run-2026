@@ -1,12 +1,11 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { DefaultSession } from "next-auth";
 
 import { prisma } from "@/lib/prisma";
 
-import { DefaultSession } from "next-auth";
-
-// Memberitahu TypeScript bahwa objek user di dalam Session memiliki tambahan properti 'id'
+// --- TAMBAHAN UNTUK TYPESCRIPT ---
 declare module "next-auth" {
   interface Session {
     user: {
@@ -15,12 +14,12 @@ declare module "next-auth" {
   }
 }
 
-// (Opsional) Memperluas tipe JWT agar tidak error saat memanggil token.id
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
   }
 }
+// ---------------------------------
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -73,13 +72,12 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user && token.id) {
-        session.user.id = token.id;
+        // TypeScript sekarang mengenali session.user.id
+        session.user.id = token.id as string;
       }
 
       return session;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-
-  
 };
